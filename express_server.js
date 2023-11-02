@@ -8,6 +8,8 @@ const urlDatabase = {
 };
 
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -23,6 +25,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// URLS
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -33,6 +36,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// URLS Generate
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 // URLS Result
 app.get("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
@@ -40,3 +48,19 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id: shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
+
+// Post URL for Shortening?
+app.post("/urls", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+
+// Generate a Random Short URL
+function generateRandomString() {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
