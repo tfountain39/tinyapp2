@@ -9,19 +9,34 @@ const urlDatabase = {
 
 app.set("view engine", "ejs");
 
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
+
+// Home/Greeting
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+// Hello Page
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// URLS Home
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+// URLS Result
+app.get("/urls/:id", (req, res) => {
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL];
+  const templateVars = { id: shortURL, longURL: longURL };
+  res.render("urls_show", templateVars);
 });
