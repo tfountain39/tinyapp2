@@ -41,7 +41,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-// URLS Result
+// URLS Result for user that shows created short link
 app.get("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL];
@@ -49,10 +49,24 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Post for removal
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  if(urlDatabase[id]) {
+    delete urlDatabase[id];
+      res.redirect('/url');
+    } else {
+      res.status(404).send('Not found');
+    }
+});
+
+
 // Post URL for Shortening?
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const longURL = req.body.longURL;
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 // Generate a Random Short URL
