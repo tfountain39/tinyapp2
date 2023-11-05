@@ -49,17 +49,28 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// Post for removal
+// Post for edit
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   if(urlDatabase[id]) {
     delete urlDatabase[id];
-      res.redirect('/url');
+      res.redirect('/urls');
     } else {
       res.status(404).send('Not found');
     }
 });
 
+// Post for removal
+app.post("/urls/:id/edit", (req, res) => {
+  const id = req.params.id;
+  const newLongURL = req.body.newLongURL;
+  if(urlDatabase[id]) {
+    urlDatabase[id] = newLongURL;
+      res.redirect('/urls');
+  } else {
+      res.status(404).send('Not found');
+  }
+});
 
 // Post URL for Shortening?
 app.post("/urls", (req, res) => {
@@ -67,6 +78,17 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
+});
+
+app.post('/urls/:id', (req, res) => {
+  const id = req.params.id;
+  const newLongURL = req.body.newLongURL;
+  if(urls[id]) {
+    urls[id] = newLongURL;
+    res.redirect('/urls')
+  } else {
+    res.status(404).send('Not found');
+  }
 });
 
 // Generate a Random Short URL
