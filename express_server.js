@@ -6,6 +6,12 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
+const { 
+  generateRandomString, 
+  requireLogin, 
+  urlsForUser, 
+  getUserByEmail } = require('./helpers');
+
 
 // ####################################
 // # Application Setup
@@ -161,7 +167,7 @@ app.get("/urls", (req, res) => {
 });
 
 // GET to URLS generate
-app.get("/urls/new", (req, res) => {
+app.get("/urls/new", requireLogin, (req, res) => {
   const userId = req.session.session;
   if (!userId) {
     return res.redirect('/login');
@@ -260,40 +266,3 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-// ####################################
-// # Helper Function
-// ####################################
-
-// Generate a random short URL
-function generateRandomString() {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-};
-
-function requireLogin(req, res, next) {
-  const userId = req.session.session;
-  if (userId && users[userId]) {
-    next();
-  } else {
-    // User is not logged in, redirect to the login page
-    res.redirect('/login');
-  }
-}
-
-function urlsForUser(id) {
-  let filteredUrls = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      filteredUrls[url] = urlDatabase[url];
-    }
-  }
-  return filteredUrls;
-}
-
-function getUserByEmail(email) {
-  return Object.values(users).find(user => user.email === email);
-}
