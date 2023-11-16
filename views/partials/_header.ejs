@@ -18,9 +18,23 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <form action="/login" method="POST">
-      <input type="text" name="username" placeholder="Enter Username" required>
-      <button type="submit">Login</button>
-    </form>
+    <!-- Banner Profile -->
+    <div class="navbar-text">
+      <% if (user) { %>
+        <!-- Banner User Email -->
+        Logged in as: <%= user.email %>
+        <!-- Banner Logout Button -->
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </form>
+      <% } else { %>
+        <!-- Login Form -->
+        <a href="/login" class="btn btn-primary mr-2">Login</a>
+        <!-- Registration Form -->
+        <form action="/register" method="POST" class="form-inline">
+          <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+      <% } %>
+    </div>
   </nav>
 </header>
