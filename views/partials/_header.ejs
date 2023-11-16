@@ -19,27 +19,22 @@
       </div>
     </div>
     <!-- Banner Profile -->
-    <% if (user) { %>
-      <!-- Banner User Email -->
-      <div class="navbar-text">
+    <div class="navbar-text">
+      <% if (user) { %>
+        <!-- Banner User Email -->
         Logged in as: <%= user.email %>
-      </div>
-      <!-- Banner Logout Button -->
-      <form action="/logout" method="POST">
-        <button type="submit">Logout</button>
-      </form>
-    <% } else { %>
-      <!-- Login Form -->
-      <div class="navbar-text">
-        <form action="/login" method="POST" class="form-inline">
-          <button type="submit" class="btn btn-primary mr-2" name="login">Login</button>
+        <!-- Banner Logout Button -->
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-primary">Logout</button>
         </form>
-      </div>
-      <!-- Registration Form -->
-      <form action="/register" method="POST" class="form-inline">
-        <button type="submit" class="btn btn-primary">Register</button>
-      </form>
+      <% } else { %>
+        <!-- Login Form -->
+        <a href="/login" class="btn btn-primary mr-2">Login</a>
+        <!-- Registration Form -->
+        <form action="/register" method="POST" class="form-inline">
+          <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+      <% } %>
     </div>
-    <% } %>
   </nav>
 </header>
