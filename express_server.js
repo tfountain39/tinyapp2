@@ -76,11 +76,11 @@ app.get("/register", (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   // Find user by email
-  const user = Object.values(users).find(user => user.email === email);
+  const user = getUserByEmail;
 
   if (!user) {
     // User not found
-    return res.redirect('/login');
+    return res.status(403).send('Login failed: User not found');
   }
   
   if (bcrypt.compareSync(password, user.password)) {
@@ -89,14 +89,14 @@ app.post('/login', (req, res) => {
     res.redirect('/urls');
   } else {
     // Password does not match
-    res.status(401).send('Login failed: Incorrect password.');
+    res.status(403).send('Login failed: Incorrect password.');
   }
 });
 
 // POST to logout
 app.post('/logout', (req, res) => {
   res.clearCookie('userid');
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // POST to register
