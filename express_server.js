@@ -14,8 +14,14 @@ const app = express();
 const PORT = 8085; // default port 8080
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -56,40 +62,36 @@ app.get("/hello", (req, res) => {
 // ####################################
 
 // Get to login page
-app.get('/login', (req, res) => {
-  const userId = req.cookies["userid"];
-  const user = users[userId];
-
-  // Render the login page template
-  res.render('user_login', { user });
+app.get('/login', requireLogin, (req, res) => {
+  res.render('user_login', { user: null });
 });
 
 // Get to registeration page
-app.get("/register", (req, res) => {
-  const userId = req.cookies["userid"];
-  const user = users[userId];
-
-  res.render("user_reg", { user });
+app.get("/register", requireLogin, (req, res) => {
+  res.render('user_reg', { user: null });
 });
 
 // POST to login
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   // Find user by email
-  const user = getUserByEmail;
+  const user = getUserByEmail(email);
 
   if (!user) {
     // User not found
-    return res.status(403).send('Login failed: User not found');
+    const error = 'User not found';
+    res.render('user_login', { user: null, error });
+    return;
   }
-  
+
   if (bcrypt.compareSync(password, user.password)) {
     // set cookie with the user's id if success  
     res.cookie('userid', user.id);
     res.redirect('/urls');
   } else {
     // Password does not match
-    res.status(403).send('Login failed: Incorrect password.');
+    const error = 'Login failed: Incorrect password.';
+    res.render('user_login', { user: null, error });
   }
 });
 
@@ -178,7 +180,7 @@ app.post("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.newLongURL;
   if (urlDatabase[id]) {
-    urlDatabase[id] = newLongURL;
+    urlDatabase[id].longURL = newLongURL;
     res.redirect('/urls');
   } else {
     res.status(404).send('Not found');
@@ -226,3 +228,18 @@ function generateRandomString() {
   }
   return result;
 };
+
+function requireLogin(req, res, next) {
+  const userId = req.cookies["user_id"];
+  if (userId && users[userId]) {
+    // User is logged in, redirect to /urls
+    res.redirect('/urls');
+  } else {
+    // User is not logged in, proceed to the next middleware or route handler
+    next();
+  }
+}
+
+function getUserByEmail(email) {
+  return Object.values(users).find(user => user.email === email);
+}

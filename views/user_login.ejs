@@ -13,6 +13,9 @@
   <%- include('./partials/_header') %>
   <main style="margin: 1em">
     <h3>Login</h3>
+    <% if (typeof error !== 'undefined' && error !== null) { %>
+      <p style="color: red;"><%= error %></p>
+    <% } %>
     <form method="POST" action="/login">
       <div class="form-group mb-2">
         <label for="email">Email Address:</label>
