@@ -9,17 +9,14 @@ function generateRandomString() {
   return result;
 };
 
-function requireLogin(req, res, next) {
+function requireLogin(req, res, users) {
   const userId = req.session.session;
-  if (userId && users[userId]) {
-    next();
-  } else {
-    // User is not logged in, redirect to the login page
+  if (!userId || !users[userId]) {
     res.redirect('/login');
   }
 }
 
-function urlsForUser(id) {
+function urlsForUser(id, urlDatabase) {
   let filteredUrls = {};
   for (let url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
@@ -29,7 +26,7 @@ function urlsForUser(id) {
   return filteredUrls;
 }
 
-function getUserByEmail(email) {
+function getUserByEmail(email, users) {
   return Object.values(users).find(user => user.email === email);
 }
 

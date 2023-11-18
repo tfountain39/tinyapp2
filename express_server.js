@@ -64,7 +64,7 @@ app.get("/", (req, res) => {
   if (!userId) {
     res.redirect('/login');
   } else {
-    const userUrls = urlsForUser(userId);
+    const userUrls = urlsForUser(userId, urlDatabase);
     res.render("urls_index", { urls: userUrls, user }); // Pass the user to the template
   }
 });
@@ -97,7 +97,7 @@ app.get("/register", (req, res) => {
 // POST to login
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users) ;
 
   if (!user) {
     // User not found, redirect to login page with an error message
@@ -131,8 +131,8 @@ app.post('/register', (req, res) => {
   }
 
   users[userId] = { id: userId, email: email, password: hashedPassword };
-  req.session.session = user.id;
   const user = users[userId];
+  req.session.session = user ? user.id : null;
   res.redirect('/urls');
 });
 
@@ -162,12 +162,12 @@ app.get("/urls", (req, res) => {
     };
     return res.render("urls_index", { error: error, user: user, urls: {} });
   }
-  const userUrls = urlsForUser(userId);
+  const userUrls = urlsForUser(userId, urlDatabase);
   res.render("urls_index", { urls: userUrls, user: user });
 });
 
 // GET to URLS generate
-app.get("/urls/new", requireLogin, (req, res) => {
+app.get("/urls/new", requireLogin, (req, res, users) => {
   const userId = req.session.session;
   if (!userId) {
     return res.redirect('/login');
