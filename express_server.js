@@ -62,7 +62,7 @@ app.get("/", (req, res) => {
   const userId = req.session.session;
   const user = users[userId]; // Fetch the user using the userid cookie
   if (!userId) {
-    res.redirect('/login');
+    return res.redirect('/login');
   } else {
     const userUrls = urlsForUser(userId, urlDatabase);
     res.render("urls_index", { urls: userUrls, user }); // Pass the user to the template
@@ -80,18 +80,24 @@ app.get('/login', (req, res) => {
   if (user) {
     // User is logged in, redirect to /urls
     return res.redirect('/urls');
+  } else {
+    const error = req.query.error || null;
+    res.render('user_login', { user, error });
   }
+  });
   // User is not logged in, render the login page
-  const error = req.query.error || null;
-  res.render('user_login', { user, error });
-});
 
 // Get to registeration page
 app.get("/register", (req, res) => {
-  if (req.session.session) {
+  const userId = req.session.session;
+  const user = users[userId] || null; // Fetch the user using the userid cookie or set to null if not logged in
+  if (user) {
+    // User is logged in, redirect to /urls
     return res.redirect('/urls');
+  } else {
+    const error = req.query.error || null;
+    res.render('user_reg', { user, error });
   }
-  res.render('user_reg', { user: null });
 });
 
 // POST to login
@@ -107,12 +113,11 @@ app.post('/login', (req, res) => {
 
   if (bcrypt.compareSync(password, user.password)) { // Compare hashed password with provided password
     // set cookie with the user's id if success  
-    req.session.session = userId;
-    const loggedInUser = users[req.cookies["userid"]] || null;
-    res.render('user_login', { user: loggedInUser, error: null });
+    const loggedInUser = req.session.session || null;
+    return res.redirect('/urls');
   } else {
     // Password does not match, redirect to login page with an error message
-    res.redirect('/login?error=Login failed: Incorrect password.');
+    return res.redirect('/login?error=Login failed: Incorrect password.');
   }
 });
 
@@ -133,13 +138,13 @@ app.post('/register', (req, res) => {
   users[userId] = { id: userId, email: email, password: hashedPassword };
   const user = users[userId];
   req.session.session = user ? user.id : null;
-  res.redirect('/urls');
+  return res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
   // Clear the userid cookie to log the user out
   req.session = null;
-  res.redirect('/login');
+  return res.redirect('/login');
 });
 
 // ####################################
@@ -188,7 +193,7 @@ app.get('/u/:id', (req, res) => {
 
   // If it exists, redirect to the original URL or handle as needed
   const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(longURL);
+  return res.redirect(longURL);
 });
 
 // GET to URLS result for user that shows created short link
@@ -215,7 +220,7 @@ app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   if (urlDatabase[id]) {
     delete urlDatabase[id];
-    res.redirect('/urls');
+    return res.redirect('/urls');
   } else {
     res.status(404).send('Not found');
   }
@@ -227,9 +232,9 @@ app.post("/urls/:id/edit", (req, res) => {
   const newLongURL = req.body.newLongURL;
   if (urlDatabase[id]) {
     urlDatabase[id].longURL = newLongURL;
-    res.redirect('/urls');
+    return res.redirect('/urls');
   } else {
-    res.status(404).send('Not found');
+    return res.status(404).send('Not found');
   }
 });
 
@@ -244,7 +249,7 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: longURL, userID: userId };
-  res.redirect(`/urls/${shortURL}`);
+  return res.redirect(`/urls/${shortURL}`);
 });
 // POST to URLS search
 app.post('/urls/:id', (req, res) => {
@@ -252,7 +257,7 @@ app.post('/urls/:id', (req, res) => {
   const newLongURL = req.body.newLongURL;
   if (urls[id]) {
     urls[id] = newLongURL;
-    res.redirect('/urls');
+    return res.redirect('/urls');
   } else {
     res.status(404).send('Not found');
   }
