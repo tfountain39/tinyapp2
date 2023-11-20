@@ -8,7 +8,6 @@ const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const { 
   generateRandomString, 
-  requireLogin, 
   urlsForUser, 
   getUserByEmail } = require('./helpers');
 
@@ -37,6 +36,7 @@ const users = {
     password: "purple-monkey-dinosaur",
   },
 };
+
 // ####################################
 // # Application Config
 // ####################################
@@ -115,7 +115,7 @@ app.post('/login', (req, res) => {
     res.redirect('/login?error=Login failed: Incorrect password.');
   }
 });
-// hi
+
 // POST to register
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
@@ -156,18 +156,14 @@ app.get("/urls", (req, res) => {
   const userId = req.session.session;
   const user = users[userId] || null; // Set user to null if not logged in
   if (!userId) {
-    const error = {
-      errorCode: '403 Forbidden',
-      errorMessage: 'You must be logged in to view URLs.'
-    };
-    return res.render("urls_index", { error: error, user: user, urls: {} });
+    return res.redirect('/login');
   }
   const userUrls = urlsForUser(userId, urlDatabase);
   res.render("urls_index", { urls: userUrls, user: user });
 });
 
 // GET to URLS generate
-app.get("/urls/new", requireLogin, (req, res, users) => {
+app.get("/urls/new", (req, res) => {
   const userId = req.session.session;
   if (!userId) {
     return res.redirect('/login');
@@ -235,17 +231,18 @@ app.post("/urls/:id/edit", (req, res) => {
 
 // POST URL for shortening
 app.post("/urls", (req, res) => {
-  const userId = req.sessions;
+  const userId = req.session.session;
+  console.log(userId);
   if (!userId) {
     // User is not logged in, redirect to the login page
     return res.redirect('/login');
   }
-
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: longURL, userID: userId };
   res.redirect(`/urls/${shortURL}`);
 });
+
 // POST to URLS search
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id;

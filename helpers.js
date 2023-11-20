@@ -1,4 +1,3 @@
-
 // Generate a random short URL
 function generateRandomString() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -8,13 +7,6 @@ function generateRandomString() {
   }
   return result;
 };
-
-function requireLogin(req, res, users) {
-  const userId = req.session.session;
-  if (!userId || !users[userId]) {
-    res.redirect('/login');
-  }
-}
 
 function urlsForUser(id, urlDatabase) {
   let filteredUrls = {};
@@ -32,7 +24,6 @@ function getUserByEmail(email, users) {
 
 module.exports = {
   generateRandomString,
-  requireLogin,
   urlsForUser,
   getUserByEmail
 };
